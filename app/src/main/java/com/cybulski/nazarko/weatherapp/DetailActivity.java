@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,11 +13,18 @@ import android.widget.Toast;
 import com.cybulski.nazarko.weatherapp.model.WheaterEvent;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.kml.KmlContainer;
+import com.google.maps.android.kml.KmlGroundOverlay;
 import com.google.maps.android.kml.KmlLayer;
+import com.google.maps.android.kml.KmlPlacemark;
+import com.google.maps.android.kml.KmlPolygon;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 
 import io.realm.Realm;
 
@@ -28,6 +36,7 @@ public class DetailActivity extends AppCompatActivity {
     TextView tvArea;
     SupportMapFragment mapFragment;
     GoogleMap map;
+    KmlLayer layer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +63,43 @@ public class DetailActivity extends AppCompatActivity {
             finish();
             return;
         }else{
-            try {
-                KmlLayer layer = new KmlLayer(map, R.raw.cb_2014_us_county_20m, getApplicationContext());
-                layer.addLayerToMap();
-            } catch (XmlPullParserException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                if (((App)getApplication()).getLayer()!=null){
+                    layer=  ((App)getApplication()).getLayer();
+                    //layer.setMap(map);
+                    Iterable<KmlContainer> containers = layer.getContainers();
+                    for (KmlContainer container : containers ) {
+                        Iterable<KmlContainer>  countrycointeriner = container.getContainers();
+                        for (KmlContainer innercointeriner:countrycointeriner){
+                            Iterable <KmlPlacemark> country = innercointeriner.getPlacemarks();
+                            for (KmlPlacemark placemark:country){
+                                if (placemark.hasProperty("name")){
+                                    Log.v("TAG", placemark.getProperty("name"));
+                                    if (placemark.getGeometry().getGeometryType().equals("Polygon")){
+                                        ArrayList <ArrayList<LatLng>>  poligon =(ArrayList <ArrayList<LatLng>>)placemark.getGeometry().getGeometryObject();
+                                        Log.v("TAG",poligon.toString());
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+
+
+
+
+//                for (KmlContainer container : layer.getContainers()) {
+//                    if (container.hasContainers()) {
+//                        for (KmlContainer containercounty : container.getContainers()) {
+//                            Log.v("TAG",containercounty.getProperty("name"));
+//                        }
+//
+//                    }
+//                }
+
+
         }
 
 
@@ -70,7 +108,22 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
-    @Override
+    public void accessContainers(Iterable<KmlContainer> containers) {
+        if (containers==null){
+            return;
+        }
+        for (KmlContainer container : containers ) {
+            // Do something to container
+            if (container.hasProperty("name")) {
+                Log.v("TAG", container.getProperty("name"));
+            }
+            accessContainers(container.getContainers());
+
+        }
+    }
+
+
+        @Override
     protected void onDestroy() {
         realm.close();
         super.onDestroy();
