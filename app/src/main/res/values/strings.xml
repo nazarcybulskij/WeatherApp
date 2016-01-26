@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <string name="title_activity_detail">DetailActivity</string>
+
+    <string name="API_KEY">AIzaSyB5yz7ro2UyW9npTHZ4h5MeE98dy8PjOCE</string>
+
+
+
+</resources>
