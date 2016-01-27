@@ -1,5 +1,6 @@
 package com.cybulski.nazarko.weatherapp.model;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -12,8 +13,6 @@ public class HashLocation extends RealmObject {
     @PrimaryKey
     private String hashcode;
     private String title;
-
-
 
 
     public String getHashcode() {
@@ -31,4 +30,7 @@ public class HashLocation extends RealmObject {
     public void setTitle(String title) {
         this.title = title;
     }
+
+
+
 }

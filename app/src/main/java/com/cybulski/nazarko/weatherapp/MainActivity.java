@@ -1,9 +1,11 @@
 package com.cybulski.nazarko.weatherapp;
 
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -12,6 +14,7 @@ import android.widget.Toast;
 import com.cybulski.nazarko.weatherapp.event.ErrorEvent;
 import com.cybulski.nazarko.weatherapp.event.FinishEvent;
 import com.cybulski.nazarko.weatherapp.event.StartEvent;
+import com.cybulski.nazarko.weatherapp.model.Country;
 import com.cybulski.nazarko.weatherapp.model.HashLocation;
 import com.cybulski.nazarko.weatherapp.model.WheaterEvent;
 
@@ -19,9 +22,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import de.greenrobot.event.EventBus;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 public class MainActivity extends AppCompatActivity  {
@@ -58,7 +66,25 @@ public class MainActivity extends AppCompatActivity  {
 //        });
         realm = Realm.getInstance(this);
 
-        final WheaterEventAdapter adapter = new WheaterEventAdapter(this, realm.where(WheaterEvent.class).findAll(), true);
+        RealmResults<Country> countries = realm.where(Country.class).findAll();
+        RealmResults<WheaterEvent> wheaterEvents = realm.where(WheaterEvent.class).findAll();
+
+//        for (WheaterEvent tempWheaterEvent:wheaterEvents){
+//            if (tempWheaterEvent.getLocations().size()!=0) {
+//                Country coiuntu =realm.where(Country.class).equalTo("title", tempWheaterEvent.getLocations().get(0).getTitle()).findFirst();
+//                if (coiuntu!=null){
+//                    Log.v("test","find");
+//                }else{
+//                    Log.v("test",tempWheaterEvent.getLocations().get(0).getTitle());
+//                }
+//            }else{
+//                Log.v("test","dont find");
+//            }
+//        }
+
+
+
+        final WheaterEventAdapter adapter = new WheaterEventAdapter(this, wheaterEvents, true);
         ListView listView = (ListView) findViewById(R.id.list);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

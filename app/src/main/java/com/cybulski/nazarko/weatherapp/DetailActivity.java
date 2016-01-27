@@ -1,5 +1,7 @@
 package com.cybulski.nazarko.weatherapp;
 
+import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,10 +12,15 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cybulski.nazarko.weatherapp.model.Country;
+import com.cybulski.nazarko.weatherapp.model.CountryPoligonPoint;
+import com.cybulski.nazarko.weatherapp.model.HashLocation;
 import com.cybulski.nazarko.weatherapp.model.WheaterEvent;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.maps.android.kml.KmlContainer;
 import com.google.maps.android.kml.KmlGroundOverlay;
 import com.google.maps.android.kml.KmlLayer;
@@ -27,6 +34,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -36,7 +44,7 @@ public class DetailActivity extends AppCompatActivity {
     TextView tvArea;
     SupportMapFragment mapFragment;
     GoogleMap map;
-    KmlLayer layer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +62,10 @@ public class DetailActivity extends AppCompatActivity {
            // tvId.setText(wheaterEvent.getIdentifier());
             tvTitle.setText(wheaterEvent.getTitle());
             tvArea.setText(wheaterEvent.getAreaDesc());
+
+
+
+
         }
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -63,28 +75,7 @@ public class DetailActivity extends AppCompatActivity {
             finish();
             return;
         }else{
-                if (((App)getApplication()).getLayer()!=null){
-                    layer=  ((App)getApplication()).getLayer();
-                    //layer.setMap(map);
-                    Iterable<KmlContainer> containers = layer.getContainers();
-                    for (KmlContainer container : containers ) {
-                        Iterable<KmlContainer>  countrycointeriner = container.getContainers();
-                        for (KmlContainer innercointeriner:countrycointeriner){
-                            Iterable <KmlPlacemark> country = innercointeriner.getPlacemarks();
-                            for (KmlPlacemark placemark:country){
-                                if (placemark.hasProperty("name")){
-                                    Log.v("TAG", placemark.getProperty("name"));
-                                    if (placemark.getGeometry().getGeometryType().equals("Polygon")){
-                                        ArrayList <ArrayList<LatLng>>  poligon =(ArrayList <ArrayList<LatLng>>)placemark.getGeometry().getGeometryObject();
-                                        Log.v("TAG",poligon.toString());
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
+            drawZone(wheaterEvent);
 
 
 
@@ -108,19 +99,42 @@ public class DetailActivity extends AppCompatActivity {
 
     }
 
-    public void accessContainers(Iterable<KmlContainer> containers) {
-        if (containers==null){
-            return;
-        }
-        for (KmlContainer container : containers ) {
-            // Do something to container
-            if (container.hasProperty("name")) {
-                Log.v("TAG", container.getProperty("name"));
+    private void drawZone(WheaterEvent wheaterEvent) {
+
+        RealmList<HashLocation> locations = wheaterEvent.getLocations();
+
+        if (locations==null || locations.size()==0){
+            Toast.makeText(this,"don't find",Toast.LENGTH_SHORT).show();
+        }else {
+
+            for (HashLocation country:locations){
+                Country point = realm.where(Country.class).equalTo("title",country.getTitle()).findFirst();
+                if (point==null){
+                    break;
+                }
+                ArrayList<LatLng> list  = new ArrayList<>();
+                RealmList<CountryPoligonPoint> poligon = point.getPoligon();
+                if (poligon==null){
+                    break;
+                }
+                for (CountryPoligonPoint tempPoint:poligon){
+                    list.add(new LatLng(tempPoint.getLat(),tempPoint.getLon()));
+                }
+                if (list.size()!=0){
+                    Polygon polygon = map.addPolygon(new PolygonOptions()
+                            .addAll(list)
+                            .strokeColor(Color.RED)
+                            .fillColor(Color.BLUE));
+
+                }
+
             }
-            accessContainers(container.getContainers());
 
         }
+
+
     }
+
 
 
         @Override
