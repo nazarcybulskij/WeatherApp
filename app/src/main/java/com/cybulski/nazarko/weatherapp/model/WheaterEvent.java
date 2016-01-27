@@ -12,8 +12,10 @@ public class WheaterEvent extends RealmObject {
     @PrimaryKey
     private String identifier;
     private String title;
+    private  String summary;
     private String AreaDesc;
     private RealmList<HashLocation> locations;
+    private  RealmList<CountryPoligonPoint> poligon;
 
 
 
@@ -48,6 +50,22 @@ public class WheaterEvent extends RealmObject {
 
     public void setLocations(RealmList<HashLocation> locations) {
         this.locations = locations;
+    }
+
+    public RealmList<CountryPoligonPoint> getPoligon() {
+        return poligon;
+    }
+
+    public void setPoligon(RealmList<CountryPoligonPoint> poligon) {
+        this.poligon = poligon;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
 }

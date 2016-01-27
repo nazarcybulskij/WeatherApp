@@ -27,6 +27,7 @@ import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -71,6 +73,9 @@ public class NetworkApi {
         new Thread(new Runnable() {
             @Override
             public void run() {
+
+
+
                 if (mContext!=null) try {
                     EventBus.getDefault().post(new StartEvent());
                     realm = Realm.getInstance(mContext);
@@ -95,10 +100,25 @@ public class NetworkApi {
                     for (org.jsoup.nodes.Element temp1:entrys) {
                         WheaterEvent wheaterEvent = new WheaterEvent();
                         wheaterEvent.setIdentifier(temp1.select("id").text());
+                        wheaterEvent.setSummary(temp1.select("summary").text());
                         wheaterEvent.setAreaDesc(temp1.select("cap|areaDesc").text());
                         wheaterEvent.setTitle(temp1.select("title").text());
+                        Elements poligon  = temp1.select("cap|polygon");
+                        if (!poligon.text().equals("")){
+                            String [] arraycoords = poligon.text().split("(,)|(\\s)");
+                            RealmList<CountryPoligonPoint> poligonlist= new RealmList<CountryPoligonPoint>();
+                            for (int i=0;i<arraycoords.length;i=i+2){
+                                CountryPoligonPoint point = new CountryPoligonPoint();
+                                point.setLat(Double.parseDouble(arraycoords[i]));
+                                point.setLon(Double.parseDouble(arraycoords[i+1]));
+                                poligonlist.add(point);
+                            }
+                            wheaterEvent.setPoligon(poligonlist);
+                        }
+
                         Elements geocodes = temp1.select("cap|geocode");
                         RealmList<HashLocation> list = new RealmList<HashLocation>();
+
                         for (org.jsoup.nodes.Element geocode:geocodes.select("value")){
                             for (String txt:geocode.text().split(" ")){
                                 HashLocation hashLocation = realm.where(HashLocation.class).equalTo("hashcode",txt).findFirst();
@@ -115,6 +135,7 @@ public class NetworkApi {
                         realm.commitTransaction();
                     }
                     realmevent.close();
+
 
                     if (((App)mContext.getApplicationContext()).getLayer()!=null){
                         KmlLayer layer=  ((App)mContext.getApplicationContext()).getLayer();

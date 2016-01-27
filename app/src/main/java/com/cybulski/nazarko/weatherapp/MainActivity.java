@@ -21,6 +21,7 @@ import com.cybulski.nazarko.weatherapp.model.WheaterEvent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 
 import de.greenrobot.event.EventBus;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -81,6 +83,8 @@ public class MainActivity extends AppCompatActivity  {
 //                Log.v("test","dont find");
 //            }
 //        }
+
+
 
 
 

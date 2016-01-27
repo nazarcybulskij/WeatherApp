@@ -130,6 +130,23 @@ public class DetailActivity extends AppCompatActivity {
 
             }
 
+
+            ArrayList<LatLng> list  = new ArrayList<>();
+            RealmList<CountryPoligonPoint> poligon = wheaterEvent.getPoligon();
+            if (poligon==null){
+                return;
+            }
+            for (CountryPoligonPoint tempPoint:poligon){
+                list.add(new LatLng(tempPoint.getLat(),tempPoint.getLon()));
+            }
+            if (list.size()!=0){
+                Polygon polygon = map.addPolygon(new PolygonOptions()
+                        .addAll(list)
+                        .strokeColor(Color.RED)
+                        .fillColor(Color.BLUE));
+
+            }
+
         }
 
 

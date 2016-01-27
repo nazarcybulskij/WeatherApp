@@ -24,6 +24,8 @@ dependencies {
     compile('com.stanfy:gson-xml-java:0.1.+') {
         exclude group: 'xmlpull', module: 'xmlpull'
     }
+    compile 'de.micromata.jak:JavaAPIforKml:2.2.1'
+
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'org.jsoup:jsoup:1.7.2'
